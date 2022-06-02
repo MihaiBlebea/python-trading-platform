@@ -22,7 +22,7 @@ class Account:
 
 	token: str = None
 
-	id: int = None
+	id: str = None
 
 	def __post_init__(self):
 		if self.id is None:

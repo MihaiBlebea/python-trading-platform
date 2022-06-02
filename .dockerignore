@@ -1,5 +1,2 @@
 env
-dist
-build
-shouldibuy.spec
-setup.py
+local.db
