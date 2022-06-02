@@ -1,14 +1,22 @@
 from dependencies import Injector
-from src.application.account_balance import AccountBalance
-from src.application.account_auth import AccountAuth
-from src.infrastructure.repos.account_repo import AccountRepo
-from src.infrastructure.repos.account_repo_local import AccountRepoLocal
-from src.infrastructure.repos.order_repo_local import OrderRepoLocal
+from src.application import (
+	AccountAuth, 
+	AccountBalance, 
+	OrderPlace
+)
+from src.infrastructure.repos import (
+	AccountRepo,
+	AccountRepoLocal,
+	OrderRepoLocal,
+	PositionRepoLocal
+)
 
 ENV = "local"
 
 class Container(Injector):
 	account_auth = AccountAuth
 	account_balance = AccountBalance
+	order_place = OrderPlace
 	account_repo = AccountRepo if ENV == "prod" else AccountRepoLocal
-	repo_repo = OrderRepoLocal
+	order_repo = OrderRepoLocal
+	position_repo = PositionRepoLocal

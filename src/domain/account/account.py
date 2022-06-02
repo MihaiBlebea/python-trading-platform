@@ -16,7 +16,9 @@ class Account:
 
 	password: str
 
-	balance: str
+	balance: int
+
+	pending_balance: int = 0
 
 	created_at: datetime = None
 
@@ -27,12 +29,16 @@ class Account:
 	def __post_init__(self):
 		if self.id is None:
 			self.id = str(uuid.uuid4())
+
 		if self.token is None:
 			self.token = jwt.encode({"id": self.id}, JWT_SECRET, algorithm="HS256")
+
 		if self.created_at is None:
 			self.created_at = datetime.now()
+
 		if isinstance(self.created_at, str):
 			self.created_at = datetime.strptime(self.created_at, "%m/%d/%Y, %H:%M:%S")
+
 		if isinstance(self.password, str):
 			self.password = self.hash_password(self.password)
 
@@ -42,6 +48,7 @@ class Account:
 			"username": self.username,
 			"email": self.email,
 			"balance": self.balance,
+			"pending_balance": self.pending_balance,
 			"token": self.token,
 			"created_at": self.get_created_str()
 		}
@@ -63,4 +70,14 @@ class Account:
 		self.balance += amount
 
 	def withdrawal(self, amount: int)-> None:
+		if self.balance < amount:
+			raise Exception("insufficient balance")
+
 		self.balance -= amount
+
+	def set_pending_balance(self, amount: int)-> None:
+		if amount > self.balance:
+			raise Exception("insufficient balance")
+
+		self.balance -= amount
+		self.pending_balance += amount

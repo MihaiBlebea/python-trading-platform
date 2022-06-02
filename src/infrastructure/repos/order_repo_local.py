@@ -19,6 +19,7 @@ class OrderRepoLocal:
 			CREATE TABLE IF NOT EXISTS orders
 			(
 				id VARCHAR(255) PRIMARY KEY,
+				symbol VARCHAR(255) NOT NULL,
 				direction VARCHAR(255) NOT NULL,
 				type VARCHAR(255) NOT NULL,
 				status VARCHAR(255) NOT NULL,
@@ -35,6 +36,7 @@ class OrderRepoLocal:
 			return None
 
 		return Order(
+			record["symbol"],
 			record["direction"],
 			record["type"],
 			record["status"],
@@ -52,6 +54,7 @@ class OrderRepoLocal:
 		for row in records:
 			orders.append(
 				Order(
+					row["symbol"],
 					row["direction"],
 					row["type"],
 					row["status"],
@@ -67,8 +70,9 @@ class OrderRepoLocal:
 	def save(self, order: Order)-> Order:
 		cur = self.con.cursor()
 		cur.execute("""
-			INSERT INTO orders VALUES (?, ?, ?, ?, ?, ?, ?)""", (
+			INSERT INTO orders VALUES (?, ?, ?, ?, ?, ?, ?, ?)""", (
 				order.id,
+				order.symbol,
 				order.direction,
 				order.type,
 				order.status,

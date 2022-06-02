@@ -1,4 +1,3 @@
-from crypt import methods
 from flask import Flask, jsonify, request
 from src.di_container import Container
 
@@ -9,7 +8,9 @@ API_V1 = "/api/v1"
 
 AUTH_ENDPOINTS = [
 	"deposit",
-	"withdrawal"
+	"withdrawal",
+	"order_buy",
+	"order_sell"
 ]
 
 @app.before_request
@@ -82,6 +83,40 @@ def withdrawal():
 	return Container.account_balance.withdrawal(
 		account_id, 
 		data["amount"],
+	)
+
+@app.route(f"{API_V1}/order/buy", methods=["POST"])
+def order_buy():
+	data = request.get_json(silent=True)
+	if data is None:
+		return jsonify({
+			"error": "missing params"
+		})
+
+	account_id = request.environ["account_id"]
+
+	return Container.order_place.buy_order(
+		account_id, 
+		data["symbol"],
+		data["type"],
+		data["amount"],
+	)
+
+@app.route(f"{API_V1}/order/sell", methods=["POST"])
+def order_sell():
+	data = request.get_json(silent=True)
+	if data is None:
+		return jsonify({
+			"error": "missing params"
+		})
+
+	account_id = request.environ["account_id"]
+
+	return Container.order_place.sell_order(
+		account_id, 
+		data["symbol"],
+		data["type"],
+		data["quantity"],
 	)
 
 if __name__ == "__main__":

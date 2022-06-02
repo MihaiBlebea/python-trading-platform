@@ -13,7 +13,7 @@ Accounts endpoints:
 - [ ] GET /account/history
 
 Orders endpoints:
-- [ ] POST /order/buy
+- [x] POST /order/buy
 - [ ] POST /order/sell
 - [ ] PUT /order/cancel
 - [ ] GET /orders

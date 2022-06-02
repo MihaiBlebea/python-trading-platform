@@ -23,6 +23,7 @@ class AccountRepoLocal:
 				password VARCHAR(255) NOT NULL,
 				token VARCHAR(255) NOT NULL UNIQUE,
 				balance INTEGER NOT NULL,
+				pending_balance INTEGER DEFAULT 0,
 				created_at VARCHAR(255) NOT NULL
 			)""")
 		self.con.commit()
@@ -38,6 +39,7 @@ class AccountRepoLocal:
 			record["email"],
 			record["password"],
 			record["balance"],
+			record["pending_balance"],
 			record["created_at"],
 			record["token"],
 			record["id"]
@@ -54,6 +56,7 @@ class AccountRepoLocal:
 			record["email"],
 			record["password"],
 			record["balance"],
+			record["pending_balance"],
 			record["created_at"],
 			record["token"],
 			record["id"]
@@ -70,6 +73,7 @@ class AccountRepoLocal:
 			record["email"],
 			record["password"],
 			record["balance"],
+			record["pending_balance"],
 			record["created_at"],
 			record["token"],
 			record["id"]
@@ -78,15 +82,14 @@ class AccountRepoLocal:
 	def save(self, account: Account)-> Account:
 		cur = self.con.cursor()
 		cur.execute("""
-			INSERT INTO accounts (
-				'id', 'username', 'email', 'password', 'token', 'balance', 'created_at'
-			) VALUES (?, ?, ?, ?, ?, ?, ?)""", (
+			INSERT INTO accounts VALUES (?, ?, ?, ?, ?, ?, ?, ?)""", (
 				account.id,
 				account.username,
 				account.email,
 				account.password,
 				account.token,
 				account.balance,
+				account.pending_balance,
 				account.get_created_str()
 			))
 
@@ -99,7 +102,8 @@ class AccountRepoLocal:
 		cur.execute(f"""
 			UPDATE accounts
 			SET
-				balance = '{account.balance}'
+				balance = '{account.balance}',
+				pending_balance = '{account.pending_balance}'
 			WHERE
 				id = '{account.id}'
 		""")

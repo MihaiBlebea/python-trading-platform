@@ -1,4 +1,3 @@
-
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
@@ -21,6 +20,8 @@ class OrderStatus(Enum):
 @dataclass
 class Order:
 
+	symbol: str
+
 	direction: str
 
 	type: str
@@ -29,7 +30,7 @@ class Order:
 
 	amount: int
 
-	quantity: int
+	quantity: int = 0
 
 	created_at: datetime = None
 
@@ -38,17 +39,31 @@ class Order:
 	def __post_init__(self):
 		if self.id is None:
 			self.id = str(uuid.uuid4())
+
 		if self.created_at is None:
 			self.created_at = datetime.now()
+
 		if isinstance(self.created_at, str):
 			self.created_at = datetime.strptime(self.created_at, "%m/%d/%Y, %H:%M:%S")
+
+		if isinstance(self.direction, OrderDirection):
+			self.direction = self.direction.value
+
+		if isinstance(self.type, OrderType):
+			self.type = self.type.value
+
+		if isinstance(self.status, OrderStatus):
+			self.status = self.status.value
 
 	def to_response(self)-> dict:
 		return {
 			"id": self.id,
+			"symbol": self.symbol,
 			"direction": self.direction,
 			"type": self.type,
 			"status": self.status,
+			"amount": self.amount,
+			"quantity": self.quantity,
 			"created_at": self.get_created_str()
 		}
 
