@@ -1,0 +1,5 @@
+env
+dist
+build
+shouldibuy.spec
+setup.py
