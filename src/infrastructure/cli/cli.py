@@ -48,5 +48,13 @@ def account_login(email: str, password: str):
 	account = Container.account_auth.login(email, password)
 	click.echo(account)
 
+@main.command()
+def fill_orders():
+	click.echo("Command fill-orders running") 
+
+	Container.order_execute.execute_all_pending()
+
+	click.echo("Orders filled") 
+
 if __name__ == "__main__":
 	main()
