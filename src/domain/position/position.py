@@ -34,3 +34,6 @@ class Position:
 
 	def get_created_str(self)-> str:
 		return self.created_at.strftime("%m/%d/%Y, %H:%M:%S")
+
+	def increment_quantity(self, quantity: int)-> None:
+		self.quantity += quantity

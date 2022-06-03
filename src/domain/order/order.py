@@ -71,4 +71,7 @@ class Order:
 		return self.created_at.strftime("%m/%d/%Y, %H:%M:%S")
 
 	def is_status_pending(self)-> bool:
-		return self.status == OrderStatus.PENDING
+		return self.status == OrderStatus.PENDING.value
+
+	def is_sell(self)-> bool:
+		return self.direction == OrderDirection.SELL.value

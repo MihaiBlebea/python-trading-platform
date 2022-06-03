@@ -90,7 +90,9 @@ class OrderRepoLocal:
 		cur.execute(f"""
 			UPDATE orders
 			SET
-				status = '{order.status}'
+				status = '{order.status}',
+				amount = '{order.amount}',
+				quantity = '{order.quantity}'
 			WHERE
 				id = '{order.id}'
 		""")
