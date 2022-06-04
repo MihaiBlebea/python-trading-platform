@@ -34,14 +34,7 @@ class OrderPlace:
 			account.set_pending_balance(amount)
 			self.account_repo.update_balance(account)
 
-			order = Order(
-				account_id,
-				symbol,
-				OrderDirection.BUY,
-				OrderType.LIMIT,
-				OrderStatus.PENDING,
-				amount,
-			)
+			order = Order.create_buy_order(account_id, symbol, OrderType.LIMIT, amount)
 
 			order = self.order_repo.save(order)
 			self.logger.log("info", f"buy order placed for {symbol}")
@@ -72,15 +65,7 @@ class OrderPlace:
 			if position.quantity < quantity:
 				raise Exception("not enough quantity in position")
 
-			order = Order(
-				account_id,
-				symbol,
-				OrderDirection.SELL,
-				OrderType.LIMIT,
-				OrderStatus.PENDING,
-				0,
-				quantity
-			)
+			order = Order.create_sell_order(account_id, symbol, OrderType.LIMIT, quantity)
 
 			order = self.order_repo.save(order)
 			self.logger.log("info", f"sell order placed for {symbol}")

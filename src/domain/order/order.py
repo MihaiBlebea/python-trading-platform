@@ -62,6 +62,37 @@ class Order:
 
 		if isinstance(self.status, OrderStatus):
 			self.status = self.status.value
+	
+	def create_buy_order(
+		account_id: str, 
+		symbol: str, 
+		order_type: str, 
+		amount: int)-> Order:
+
+		return Order(
+			account_id, 
+			symbol, 
+			OrderDirection.BUY.value, 
+			order_type,
+			OrderStatus.PENDING.value,
+			amount,
+		)
+
+	def create_sell_order(
+		account_id: str, 
+		symbol: str, 
+		order_type: str, 
+		quantity: int)-> Order:
+
+		return Order(
+			account_id, 
+			symbol, 
+			OrderDirection.SELL.value, 
+			order_type,
+			OrderStatus.PENDING.value,
+			0,
+			quantity
+		)
 
 	def to_response(self)-> dict:
 		return {
