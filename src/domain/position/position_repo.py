@@ -10,6 +10,9 @@ class PositionRepo(Protocol):
 	def find_by_symbol(self, symbol: str)-> Position | None:
 		pass
 
+	def find_by_account_id(self, id: str)-> List[Position]:
+		pass
+
 	def save(self, position: Position)-> Position:
 		pass
 

@@ -2,15 +2,15 @@ from typing import List
 import sqlite3
 from pathlib import Path
 from src.domain.order.order import Order
+from src.infrastructure.repos.database_connection import DatabaseConnection
+
 
 CWD = Path(__file__).parent.resolve()
 
 class OrderRepoLocal:
 
-	def __init__(self) -> None:
-		self.con = sqlite3.connect(f"{CWD}/../../../local.db")
-		self.con.row_factory = sqlite3.Row
-
+	def __init__(self, database_connection: DatabaseConnection) -> None:
+		self.con = database_connection.get_connection()
 		self.create_table()
 	
 	def create_table(self)-> None:
@@ -19,6 +19,7 @@ class OrderRepoLocal:
 			CREATE TABLE IF NOT EXISTS orders
 			(
 				id VARCHAR(255) PRIMARY KEY,
+				account_id VARCHAR(255) NOT NULL,
 				symbol VARCHAR(255) NOT NULL,
 				direction VARCHAR(255) NOT NULL,
 				type VARCHAR(255) NOT NULL,
@@ -35,16 +36,7 @@ class OrderRepoLocal:
 		if record is None:
 			return None
 
-		return Order(
-			record["symbol"],
-			record["direction"],
-			record["type"],
-			record["status"],
-			record["amount"],
-			record["quantity"],
-			record["created_at"],
-			record["id"]
-		)
+		return self.from_row_to_model(record)
 
 	def find_by_status(self, status: str)-> List[Order]:
 		cur = self.con.cursor()
@@ -53,16 +45,19 @@ class OrderRepoLocal:
 		orders = []
 		for row in records:
 			orders.append(
-				Order(
-					row["symbol"],
-					row["direction"],
-					row["type"],
-					row["status"],
-					row["amount"],
-					row["quantity"],
-					row["created_at"],
-					row["id"]
-				)
+				self.from_row_to_model(row)
+			)
+
+		return orders
+
+	def find_by_account_id(self, account_id: str)-> List[Order]:
+		cur = self.con.cursor()
+		records = cur.execute(f"SELECT * FROM orders WHERE account_id = '{account_id}'").fetchall()
+		
+		orders = []
+		for row in records:
+			orders.append(
+				self.from_row_to_model(row)
 			)
 
 		return orders
@@ -70,8 +65,9 @@ class OrderRepoLocal:
 	def save(self, order: Order)-> Order:
 		cur = self.con.cursor()
 		cur.execute("""
-			INSERT INTO orders VALUES (?, ?, ?, ?, ?, ?, ?, ?)""", (
+			INSERT INTO orders VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""", (
 				order.id,
+				order.account_id,
 				order.symbol,
 				order.direction,
 				order.type,
@@ -98,3 +94,16 @@ class OrderRepoLocal:
 		""")
 
 		self.con.commit()
+
+	def from_row_to_model(self, row: dict)-> Order:
+		return Order(
+			row["account_id"],
+			row["symbol"],
+			row["direction"],
+			row["type"],
+			row["status"],
+			row["amount"],
+			row["quantity"],
+			row["created_at"],
+			row["id"]
+		)

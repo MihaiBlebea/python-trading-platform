@@ -1,15 +1,15 @@
 import sqlite3
 from pathlib import Path
 from src.domain.account.account import Account
+from src.infrastructure.repos.database_connection import DatabaseConnection
+
 
 CWD = Path(__file__).parent.resolve()
 
 class AccountRepoLocal:
 
-	def __init__(self) -> None:
-		self.con = sqlite3.connect(f"{CWD}/../../../local.db")
-		self.con.row_factory = sqlite3.Row
-
+	def __init__(self, database_connection: DatabaseConnection) -> None:
+		self.con = database_connection.get_connection()
 		self.create_table()
 	
 	def create_table(self)-> None:

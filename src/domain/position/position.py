@@ -6,6 +6,8 @@ import uuid
 @dataclass
 class Position:
 
+	account_id: str
+
 	symbol: str
 
 	quantity: int

@@ -10,7 +10,9 @@ AUTH_ENDPOINTS = [
 	"deposit",
 	"withdrawal",
 	"order_buy",
-	"order_sell"
+	"order_sell",
+	"portfolio",
+	"orders"
 ]
 
 @app.before_request
@@ -118,6 +120,18 @@ def order_sell():
 		data["type"],
 		data["quantity"],
 	)
+
+@app.route(f"{API_V1}/portfolio", methods=["GET"])
+def portfolio():
+	account_id = request.environ["account_id"]
+
+	return Container.portfolio.get_positions(account_id)
+
+@app.route(f"{API_V1}/orders", methods=["GET"])
+def orders():
+	account_id = request.environ["account_id"]
+
+	return Container.orders.get_account_orders(account_id)
 
 if __name__ == "__main__":
 	app.run(host="0.0.0.0", port="8080", debug=True)

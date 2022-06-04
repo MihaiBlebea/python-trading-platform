@@ -13,6 +13,9 @@ class OrderRepo(Protocol):
 	def find_by_status(self, status: str)-> List[Order]:
 		pass
 
+	def find_by_account_id(self, account_id: str)-> List[Order]:
+		pass
+
 	def save(self, order: Order)-> Order:
 		pass
 

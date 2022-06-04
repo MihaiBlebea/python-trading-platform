@@ -23,9 +23,9 @@ class orderRepoMock:
 
 	def find_by_status(self, status: str)-> List[Order]:
 		return [
-			Order("AAPL", "buy", "limit", "pending", 200),
-			Order("GOOGL", "buy", "limit", "pending", 1500),
-			Order("TSLA", "sell", "limit", "pending", 700)
+			Order("abcd", "AAPL", "buy", "limit", "pending", 200),
+			Order("abcd", "GOOGL", "buy", "limit", "pending", 1500),
+			Order("abcd", "TSLA", "sell", "limit", "pending", 700)
 		]
 
 	def update_status(self, order: Order)-> None:
@@ -42,7 +42,7 @@ class TestOrderExecute(unittest.TestCase):
 	def test_can_execute_buy_order(self):
 		amount = 2000
 		quantity_after_fill = math.floor(amount / ASK)
-		order = Order("AAPL", "buy", "limit", "pending", amount)
+		order = Order("abcd", "AAPL", "buy", "limit", "pending", amount)
 		TestContainer.order_execute.execute_single(order)
 
 		self.assertEqual(order.symbol, "AAPL")
@@ -54,7 +54,7 @@ class TestOrderExecute(unittest.TestCase):
 
 	def test_can_execute_sell_order(self):
 		quantity = 12
-		order = Order("AAPL", "sell", "limit", "pending", 0, quantity)
+		order = Order("abcd", "AAPL", "sell", "limit", "pending", 0, quantity)
 		TestContainer.order_execute.execute_single(order)
 
 		self.assertEqual(order.symbol, "AAPL")

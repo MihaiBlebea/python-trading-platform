@@ -20,6 +20,8 @@ class OrderStatus(Enum):
 @dataclass
 class Order:
 
+	account_id: str
+
 	symbol: str
 
 	direction: str

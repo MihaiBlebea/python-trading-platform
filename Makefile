@@ -33,3 +33,6 @@ docker: docker-build docker-run
 
 docker-stop:
 	docker stop shouldibuy && docker rm shouldibuy
+
+fill-orders:
+	./execute.sh ./src/infrastructure/cli/cli.py fill-orders

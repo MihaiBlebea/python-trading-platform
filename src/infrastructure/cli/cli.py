@@ -52,7 +52,7 @@ def account_login(email: str, password: str):
 def fill_orders():
 	click.echo("Command fill-orders running") 
 
-	Container.order_execute.execute_all_pending()
+	Container.order_fill.execute_all_pending()
 
 	click.echo("Orders filled") 
 

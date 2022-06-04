@@ -5,19 +5,21 @@ from src.domain.order.order_repo import OrderRepo
 from src.domain.position.position_repo import PositionRepo
 from src.domain.position.position import Position
 from src.domain.order.price_getter import PriceGetter
+from src.infrastructure.logger.logger import Logger
 
-
-class OrderExecute:
+class OrderFill:
 
 	def __init__(
 		self, 
 		order_repo: OrderRepo, 
 		position_repo: PositionRepo,
-		price_getter: PriceGetter)-> None:
+		price_getter: PriceGetter,
+		logger: Logger)-> None:
 
 		self.order_repo = order_repo
 		self.position_repo = position_repo
 		self.price_getter = price_getter
+		self.logger = logger
 
 	def execute_single(self, order: Order)-> None:
 		(bid, ask) = self.price_getter.get_symbol_price(order.symbol)
@@ -25,6 +27,7 @@ class OrderExecute:
 		if order.is_sell():
 			# bid
 			if order.quantity == 0:
+				self.logger.log("error", "sell order quantity is 0")
 				return
 	
 			total_price = bid * order.quantity
@@ -32,6 +35,7 @@ class OrderExecute:
 		else:
 			# ask
 			if order.amount == 0:
+				self.logger.log("error", "buy order amount is 0")
 				return
 
 			total_shares = math.floor(order.amount / ask)
@@ -42,7 +46,8 @@ class OrderExecute:
 
 		position = self.position_repo.find_by_symbol(order.symbol)
 		if position is None:
-			self.position_repo.save(Position(order.symbol, order.quantity))
+			position = Position(order.account_id, order.symbol, order.quantity)
+			self.position_repo.save(position)
 		else:
 			position.increment_quantity(order.quantity)
 			self.position_repo.update_quantity(position)
