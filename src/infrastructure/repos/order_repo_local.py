@@ -30,6 +30,11 @@ class OrderRepoLocal:
 			)""")
 		self.con.commit()
 
+	def drop_table(self)-> None:
+		cur = self.con.cursor() 
+		cur.execute("DROP TABLE orders")
+		self.con.commit()
+
 	def find_by_id(self, id: str)-> Order | None:
 		cur = self.con.cursor()
 		record = cur.execute(f"SELECT * FROM orders WHERE id = '{id}'").fetchone()

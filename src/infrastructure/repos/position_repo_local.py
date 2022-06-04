@@ -25,6 +25,11 @@ class PositionRepoLocal:
 			)""")
 		self.con.commit()
 
+	def drop_table(self)-> None:
+		cur = self.con.cursor() 
+		cur.execute("DROP TABLE positions")
+		self.con.commit()
+
 	def find_by_symbol(self, symbol: str)-> Position | None:
 		cur = self.con.cursor()
 		record = cur.execute(f"SELECT * FROM positions WHERE symbol = '{symbol}'").fetchone()

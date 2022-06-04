@@ -28,6 +28,11 @@ class AccountRepoLocal:
 			)""")
 		self.con.commit()
 
+	def drop_table(self)-> None:
+		cur = self.con.cursor() 
+		cur.execute("DROP TABLE accounts")
+		self.con.commit()
+
 	def find_by_id(self, id: str)-> Account | None:
 		cur = self.con.cursor()
 		record = cur.execute(f"SELECT * FROM accounts WHERE id = '{id}'").fetchone()

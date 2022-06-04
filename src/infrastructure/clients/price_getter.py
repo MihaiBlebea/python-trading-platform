@@ -17,3 +17,7 @@ class PriceGetter:
 		ask = info["ask"]
 
 		return (bid, ask,)
+
+if __name__ == "__main__":
+	pg = PriceGetter()
+	pg.get_symbol_price("BTC-USD")

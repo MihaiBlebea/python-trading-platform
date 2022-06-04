@@ -1,7 +1,13 @@
+from __future__ import annotations
+from typing import Tuple
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
 import uuid
+import math
+from src.domain.position.position import Position
+from src.domain.account.account import Account
+
 
 class OrderDirection(Enum):
 	BUY = "buy"
@@ -77,3 +83,45 @@ class Order:
 
 	def is_sell(self)-> bool:
 		return self.direction == OrderDirection.SELL.value
+
+	def fill_buy_order(
+		self, 
+		ask_price: float,
+		account: Account,
+		position: Position = None)-> Tuple[Order, Position, Account]:
+
+		if self.amount == 0:
+			raise Exception("buy order amount is 0")
+		
+		ask_price_int = ask_price * 100
+		self.quantity = math.floor(self.amount / ask_price_int)
+		self.status = OrderStatus.FILLED.value
+
+		if position is None:
+			position = Position(self.account_id, self.symbol, self.quantity)
+		else:
+			position.increment_quantity(self.quantity)
+
+		account.free_pending_balance(self.quantity * ask_price_int)
+
+		return (self, position, account)
+
+	def fill_sell_order(
+		self,
+		bid_price: float,
+		position: Position = None)-> Tuple[Order, Position]:
+
+		if self.quantity == 0:
+			raise Exception("sell order quantity is 0")
+
+		bid_price_int = bid_price * 100
+		self.amount = bid_price_int * self.quantity
+		
+		self.status = OrderStatus.FILLED.value
+
+		if position is None:
+			position = Position(self.account_id, self.symbol, self.quantity)
+		else:
+			position.increment_quantity(self.quantity)
+
+		return (self, position)

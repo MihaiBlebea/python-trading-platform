@@ -3,9 +3,10 @@ import math
 from src.domain.order.order import Order, OrderStatus
 from src.domain.order.order_repo import OrderRepo
 from src.domain.position.position_repo import PositionRepo
-from src.domain.position.position import Position
+from src.domain.account.account_repo import AccountRepo
 from src.domain.order.price_getter import PriceGetter
 from src.infrastructure.logger.logger import Logger
+
 
 class OrderFill:
 
@@ -13,50 +14,47 @@ class OrderFill:
 		self, 
 		order_repo: OrderRepo, 
 		position_repo: PositionRepo,
+		account_repo: AccountRepo,
 		price_getter: PriceGetter,
 		logger: Logger)-> None:
 
 		self.order_repo = order_repo
 		self.position_repo = position_repo
+		self.account_repo = account_repo
 		self.price_getter = price_getter
 		self.logger = logger
 
 	def execute_single(self, order: Order)-> None:
 		(bid, ask) = self.price_getter.get_symbol_price(order.symbol)
+		position = self.position_repo.find_by_symbol(order.symbol)
+		account = self.account_repo.find_by_id(order.account_id)
+		if account is None:
+			raise Exception("account not found")
+
+		position_exists = True
+		if position is None:
+			position_exists = False
 
 		if order.is_sell():
-			# bid
-			if order.quantity == 0:
-				self.logger.log("error", "sell order quantity is 0")
-				return
-	
-			total_price = bid * order.quantity
-			order.amount = total_price
+			(order, position) = order.fill_sell_order(bid, position)
 		else:
-			# ask
-			if order.amount == 0:
-				self.logger.log("error", "buy order amount is 0")
-				return
+			(order, position, account) = order.fill_buy_order(ask, account, position)
 
-			total_shares = math.floor(order.amount / ask)
-			order.quantity = total_shares
-
-		order.status = OrderStatus.FILLED.value
-		self.order_repo.update_status(order)
-
-		position = self.position_repo.find_by_symbol(order.symbol)
-		if position is None:
-			position = Position(order.account_id, order.symbol, order.quantity)
-			self.position_repo.save(position)
-		else:
-			position.increment_quantity(order.quantity)
+		if position_exists:
 			self.position_repo.update_quantity(position)
+		else:
+			self.position_repo.save(position)
+		
+		self.order_repo.update_status(order)
+		self.account_repo.update_balance(account)
 
 	def execute_all_pending(self)-> None:
-		[
-			self.execute_single(order) 
-			for order in self.order_repo.find_by_status(OrderStatus.PENDING.value)
-		]
+		for order in self.order_repo.find_by_status(OrderStatus.PENDING.value):
+			try:
+				self.execute_single(order)
+			except Exception as err:
+				self.logger.log("error", str(err))
+				continue
 
 	def execute_all_pending_async(self)-> None:
 		threads = []

@@ -1,6 +1,8 @@
-from typing import Tuple, List
+from typing import Tuple
 import unittest
 import math
+import sqlite3
+from src.domain.account.account import Account
 from src.di_container import Container
 from src.domain.order.order import (
 	Order, 
@@ -9,8 +11,9 @@ from src.domain.order.order import (
 	OrderStatus
 )
 
-BID = 10
-ASK = 12
+# in pounds
+BID = 1.22
+ASK = 1.28
 
 ## Setup mocks in container
 class PriceGetterMock:
@@ -19,31 +22,39 @@ class PriceGetterMock:
 		return (BID, ASK,)
 
 
-class orderRepoMock:
+class SqliteInMemoryConnection:
 
-	def find_by_status(self, status: str)-> List[Order]:
-		return [
-			Order("abcd", "AAPL", "buy", "limit", "pending", 200),
-			Order("abcd", "GOOGL", "buy", "limit", "pending", 1500),
-			Order("abcd", "TSLA", "sell", "limit", "pending", 700)
-		]
+	def get_connection(self):
+		conn = sqlite3.connect("file::memory:?cache=shared")
+		conn.row_factory = sqlite3.Row
 
-	def update_status(self, order: Order)-> None:
-		pass
+		return conn
 
 
 class TestContainer(Container):
 	price_getter = PriceGetterMock
-	order_repo = orderRepoMock
+	database_connection = SqliteInMemoryConnection
 
 
-class TestOrderExecute(unittest.TestCase):
+
+class TestOrderFill(unittest.TestCase):
+
+	account = Account("mihai", "mihai@gmail.com", "intrex", 10000)
+
+	@classmethod
+	def setUp(self):
+		TestContainer.account_repo.create_table()
+		TestContainer.account_repo.save(self.account)
+
+	@classmethod
+	def tearDown(self):
+		TestContainer.account_repo.drop_table()
 
 	def test_can_execute_buy_order(self):
-		amount = 2000
-		quantity_after_fill = math.floor(amount / ASK)
-		order = Order("abcd", "AAPL", "buy", "limit", "pending", amount)
-		TestContainer.order_execute.execute_single(order)
+		amount = 2000 # in penny
+		quantity_after_fill = 15
+		order = Order(self.account.id, "AAPL", "buy", "limit", "pending", amount)
+		TestContainer.order_fill.execute_single(order)
 
 		self.assertEqual(order.symbol, "AAPL")
 		self.assertEqual(order.direction, OrderDirection.BUY.value)
@@ -54,18 +65,16 @@ class TestOrderExecute(unittest.TestCase):
 
 	def test_can_execute_sell_order(self):
 		quantity = 12
-		order = Order("abcd", "AAPL", "sell", "limit", "pending", 0, quantity)
-		TestContainer.order_execute.execute_single(order)
+		order = Order(self.account.id, "AAPL", "sell", "limit", "pending", 0, quantity)
+		TestContainer.order_fill.execute_single(order)
 
 		self.assertEqual(order.symbol, "AAPL")
 		self.assertEqual(order.direction, OrderDirection.SELL.value)
 		self.assertEqual(order.type, OrderType.LIMIT.value)
 		self.assertEqual(order.status, OrderStatus.FILLED.value)
-		self.assertEqual(order.amount, 120)
+		self.assertEqual(order.amount, 1464)
 		self.assertEqual(order.quantity, quantity)
 
-	def test_execute_multiple_orders(self):
-		TestContainer.order_execute.execute_all_pending()
 
 
 if __name__ == "__main__":
