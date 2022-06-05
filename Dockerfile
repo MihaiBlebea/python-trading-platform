@@ -1,15 +1,4 @@
-FROM node:17.0.0-bullseye AS build_webapp
-
-WORKDIR /output
-
-COPY ./webapp .
-
-RUN npm install
-
-RUN npm run build
-
-
-FROM python:3 AS runtime
+FROM python:3
 
 WORKDIR /app
 
@@ -27,8 +16,6 @@ EXPOSE 8080
 
 COPY . .
 
-COPY --from=build_webapp ./output/dist /app/webapp/dist
-
 RUN chmod +x ./execute.sh
 
-CMD ["./execute.sh", "src/server.py"]
+CMD ["./execute.sh", "src/infrastructure/http/server.py"]

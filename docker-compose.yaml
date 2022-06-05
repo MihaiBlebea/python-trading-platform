@@ -1,0 +1,26 @@
+version: "3.8"
+
+services:
+    
+    server:
+        build: .
+        container_name: server
+        # depends_on:
+        #     - database
+        ports:
+            - 8080:8080
+        volumes:
+            - ./data:/app/data
+        env_file:
+            - .env
+
+    worker:
+        build: .
+        container_name: worker
+        # depends_on:
+        #     - database
+        env_file:
+            - .env
+        volumes:
+            - ./data:/app/data
+        command: "./execute.sh ./src/infrastructure/cli/cli.py fill-orders"

@@ -38,7 +38,7 @@ class Order:
 
 	amount: int
 
-	quantity: int = 0
+	quantity: float = 0
 
 	created_at: datetime = None
 
@@ -82,7 +82,7 @@ class Order:
 		account_id: str, 
 		symbol: str, 
 		order_type: str, 
-		quantity: int)-> Order:
+		quantity: float)-> Order:
 
 		return Order(
 			account_id, 
@@ -125,7 +125,7 @@ class Order:
 			raise Exception("buy order amount is 0")
 		
 		ask_price_int = ask_price * 100
-		self.quantity = math.floor(self.amount / ask_price_int)
+		self.quantity = self.amount / ask_price_int
 		self.status = OrderStatus.FILLED.value
 
 		if position is None:

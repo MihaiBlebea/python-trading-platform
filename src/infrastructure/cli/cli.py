@@ -1,4 +1,5 @@
 import click
+from time import sleep
 from src.di_container import Container
 
 @click.group()
@@ -50,11 +51,14 @@ def account_login(email: str, password: str):
 
 @main.command()
 def fill_orders():
-	click.echo("Command fill-orders running") 
+	click.echo("Command fill-orders started") 
+	while True:
+		click.echo("Command fill-orders running") 
 
-	Container.order_fill.execute_all_pending()
+		Container.order_fill.execute_all_pending()
+		click.echo("Orders filled")
 
-	click.echo("Orders filled") 
+		sleep(60)
 
 if __name__ == "__main__":
 	main()

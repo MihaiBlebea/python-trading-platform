@@ -10,7 +10,7 @@ class Position:
 
 	symbol: str
 
-	quantity: int
+	quantity: float
 
 	created_at: datetime = None
 
@@ -37,5 +37,5 @@ class Position:
 	def get_created_str(self)-> str:
 		return self.created_at.strftime("%m/%d/%Y, %H:%M:%S")
 
-	def increment_quantity(self, quantity: int)-> None:
+	def increment_quantity(self, quantity: float)-> None:
 		self.quantity += quantity

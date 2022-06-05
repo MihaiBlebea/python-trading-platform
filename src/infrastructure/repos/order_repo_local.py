@@ -25,7 +25,7 @@ class OrderRepoLocal:
 				type VARCHAR(255) NOT NULL,
 				status VARCHAR(255) NOT NULL,
 				amount INTEGER NOT NULL,
-				quantity INTEGER NOT NULL,
+				quantity NUMERIC NOT NULL,
 				created_at VARCHAR(255) NOT NULL
 			)""")
 		self.con.commit()

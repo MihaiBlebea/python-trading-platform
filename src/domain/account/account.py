@@ -82,5 +82,6 @@ class Account:
 		self.pending_balance += amount
 
 	def free_pending_balance(self, amount: int)-> None:
-		self.pending_balance = 0
+		self.balance += self.pending_balance
 		self.balance -= amount
+		self.pending_balance = 0

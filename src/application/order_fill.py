@@ -39,6 +39,7 @@ class OrderFill:
 			(order, position) = order.fill_sell_order(bid, position)
 		else:
 			(order, position, account) = order.fill_buy_order(ask, account, position)
+			self.account_repo.update_balance(account)
 
 		if position_exists:
 			self.position_repo.update_quantity(position)
@@ -46,7 +47,6 @@ class OrderFill:
 			self.position_repo.save(position)
 		
 		self.order_repo.update_status(order)
-		self.account_repo.update_balance(account)
 
 	def execute_all_pending(self)-> None:
 		for order in self.order_repo.find_by_status(OrderStatus.PENDING.value):
